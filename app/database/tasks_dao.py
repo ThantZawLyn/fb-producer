@@ -239,12 +239,12 @@ def task_ready_to_send_condition_repeat_send():
         '(tasks.received_time is not Null) and (tasks.received_time + (tasks.interval || \' minute\')::interval) < \'' + str(
             datetime.now()) + '\'' +
         ' and tasks.enabled = true'
-        ' and (tasks.status = \'success\' or tasks.status = \'retry\' or tasks.status = \'in_queue\'or tasks.status is Null)')
+        ' and (tasks.status = \'success\' or tasks.status = \'retry\' or tasks.status is Null)')
 
 
 def get_available_wc():
     available_wc_count = db.session.query(WorkerCredential).filter(
-        WorkerCredential.attemp <= 10
+        WorkerCredential.locked == false()
     ).filter(
         WorkerCredential.inProgress == false()
     ).filter(
