@@ -16,10 +16,11 @@ from .celery_service import (send, send_keyword_by_task, send_source_by_task,
                              send_subtask)
 from .credentials_management import accounts_warming, proxy_re_enable
 
-TASK_PERCENTAGE = 50
-SUBTASK_LIKE_PERCENTAGE = 20
-SUBTASK_SHARE_PERCENTAGE = 5
-SUBTASK_PERSONAL_DATA_PERCENTAGE = 1
+TASK_PERCENTAGE = 100
+SUBTASK_LIKE_PERCENTAGE = 0
+SUBTASK_COMMENT_PERCENTAGE = 0
+SUBTASK_SHARE_PERCENTAGE = 0
+SUBTASK_PERSONAL_DATA_PERCENTAGE = 0
 tl = Timeloop()
 
 
@@ -45,12 +46,12 @@ def check_tasks():
                 comment_count,
             )
         )
-        keywords_count = 0
-        # keywords_count = send(
-            # task_count,
-            # get_keywords_ready_to_sent,
-            # send_keyword_by_task
-        # )
+#        keywords_count = 0
+        keywords_count = send(
+            task_count,
+            get_keywords_ready_to_sent,
+            send_keyword_by_task
+        )
         source_count = send(
             task_count - keywords_count,
             get_sources_ready_to_sent,
@@ -83,14 +84,14 @@ def check_tasks():
         traceback.print_exc()
 
 
-@tl.job(interval=timedelta(minutes=10))
+@tl.job(interval=timedelta(minutes=5))
 def unlock_frozen_credentials():
     """Задача разблокировки замороженных аккаунтов."""
     print("unlock_frozen_credentials task starts")
     free_frozen_credentials()
 
 
-@tl.job(interval=timedelta(minutes=7))
+@tl.job(interval=timedelta(minutes=3))
 def warming_accounts():
     """Задача прогрева аккаунтов"""
     print("warming accounts")
@@ -99,23 +100,28 @@ def warming_accounts():
 
 def split_wc_between_tasks(count):
     """Вычисление процентного соотношения веса всех типов задач."""
-    
+#    task_count = round((count / 100) * TASK_PERCENTAGE)
+#    subtask_count = count - task_count
+
+#    like_count = round((count / 100) * SUBTASK_LIKE_PERCENTAGE)
+#    share_count = round((count / 100) * SUBTASK_SHARE_PERCENTAGE)
+#    personal_data_count = round((count / 100) * SUBTASK_PERSONAL_DATA_PERCENTAGE)
+
+#   comment_count = subtask_count - like_count - share_count - personal_data_count
+ 
     task_count = count
-    subtask_count = 0
+    #task_count = round((count / 100) * TASK_PERCENTAGE)
+    subtask_count = count - task_count
 
     like_count = 0
     share_count = 0
     personal_data_count = 0
+    #personal_data_count = count - task_count
+    #personal_data_count = round((count / 100) * SUBTASK_PERSONAL_DATA_PERCENTAGE)
     comment_count = 0
+    #comment_count = subtask_count - personal_data_count
 
-    # task_count = round((count / 100) * TASK_PERCENTAGE)
-    # subtask_count = count - task_count
-
-    # like_count = round((count / 100) * SUBTASK_LIKE_PERCENTAGE)
-    # share_count = round((count / 100) * SUBTASK_SHARE_PERCENTAGE)
-    # personal_data_count = round((count / 100) * SUBTASK_PERSONAL_DATA_PERCENTAGE)
-
-    # comment_count = subtask_count - like_count - share_count - personal_data_count
+#    comment_count = subtask_count - like_count - share_count - personal_data_count
 
     return task_count, like_count, share_count, personal_data_count, comment_count
 

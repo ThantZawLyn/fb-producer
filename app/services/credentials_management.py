@@ -3,10 +3,11 @@ from ..database.worker_credentials_dao import (get_disabled_proxies,
 from ..main import logger
 from .celery_service import (send_accounts_warming,
                              send_re_enable_disabled_proxy)
-
+from datetime import datetime, timedelta, time
 
 def accounts_warming():
     """Прогрев аккаунтов."""
+    logger.log("{} Datetime Now".format(datetime.now()))
     logger.log("Start accounts warming loop")
     account_count, proxy_count, user_agent_count = get_potential_new_wc_count()
     if account_count == 0:
