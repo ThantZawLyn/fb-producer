@@ -195,6 +195,7 @@ class WorkerCredential(db.Model):
     locked = Column('locked', Boolean)
     last_time_finished = Column('last_time_finished', DateTime)
     alive_timestamp = Column('alive_timestamp', DateTime)
+    attemp = Column('attemp', Integer)
 
 
 class Share(db.Model):
